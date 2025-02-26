@@ -1,3 +1,5 @@
+// utils/pdfGenerator.js
+
 import jsPDF from 'jspdf';
 
 export const generatePDF = (results, processes) => {
@@ -12,4 +14,13 @@ export const generatePDF = (results, processes) => {
         processes.forEach((process) => {
             const processResult = result.find((item) => item.pid === process.pid);
             if (processResult) {
-                doc.text(`P${process.pid}: CT=${processResult
+                doc.text(`P${process.pid}: CT=${processResult.completionTime}, TT=${processResult.turnaroundTime}, WT=${processResult.waitingTime}`, 10, y);
+            }
+            y += 10; // Increment y for the next line
+        });
+
+        y += 10; // Add space between algorithms
+    });
+
+    doc.save('cpu-scheduling-results.pdf');
+};
