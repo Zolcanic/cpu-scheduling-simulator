@@ -1,15 +1,36 @@
-import React, { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import AlgorithmControls from '../components/AlgorithmControls';
 import AlgorithmResults from '../components/AlgorithmResults';
 import { generateProcesses } from '../utils/processGenerator';
-import { fifo, sjf, stcf, rr, mlfq } from '../utils/schedulingAlgorithms';
+import { fifo } from '../utils/schedulingAlgorithms';
+
+// useInterval Hook
+function useInterval(callback, delay) {
+    const savedCallback = useRef();
+
+    useEffect(() => {
+        savedCallback.current = callback;
+    }, [callback]);
+
+    useEffect(() => {
+        function tick() {
+            savedCallback.current();
+        }
+        if (delay !== null) {
+            const id = setInterval(tick, delay);
+            return () => clearInterval(id);
+        }
+    }, [delay]);
+}
 
 export default function Home() {
-    const [processes, setProcesses] = useState([]);
+    const [processes, setProcesses] = useState([]); // ✅ Initialized as an empty array
     const [numProcesses, setNumProcesses] = useState(5);
     const [timeQuantum, setTimeQuantum] = useState(2);
-    const [results, setResults] = useState({});
+    const [results, setResults] = useState({ fifo: [] }); // ✅ Ensure default value is an empty array
     const [running, setRunning] = useState(false);
+    const [currentTime, setCurrentTime] = useState(0);
+    const generatorRef = useRef(null);
 
     const handleGenerateProcesses = () => {
         setProcesses(generateProcesses(numProcesses));
@@ -17,21 +38,27 @@ export default function Home() {
 
     const handleRunAlgorithms = () => {
         setRunning(true);
-        const fifoResult = fifo([...processes]);
-        const sjfResult = sjf([...processes]);
-        const stcfResult = stcf([...processes]);
-        const rrResult = rr([...processes], timeQuantum);
-        const mlfqResult = mlfq([...processes]);
-
-        setResults({
-            fifo: fifoResult,
-            sjf: sjfResult,
-            stcf: stcfResult,
-            rr: rrResult,
-            mlfq: mlfqResult,
-        });
-        setRunning(false);
+        generatorRef.current = fifo([...processes]);
+        handleNextStep();
     };
+
+    const handleNextStep = () => {
+        const { value, done } = generatorRef.current.next();
+        if (done) {
+            setRunning(false);
+            setCurrentTime(0);
+            generatorRef.current = null;
+        } else {
+            setResults({ fifo: value.result });
+            setCurrentTime(value.currentTime);
+        }
+    };
+
+    useInterval(() => {
+        if (running) {
+            handleNextStep();
+        }
+    }, 1000); // Update every 1000ms (1 second)
 
     return (
         <div>
@@ -45,7 +72,10 @@ export default function Home() {
         onRun={handleRunAlgorithms}
         running={running}
         />
-        {processes.length > 0 && <AlgorithmResults results={results} processes={processes} running={running} />}
+        {/* ✅ Ensured processes is defined before accessing length */}
+        {processes.length > 0 && (
+            <AlgorithmResults results={results} processes={processes} running={running} currentTime={currentTime} />
+        )}
         </div>
     );
 }

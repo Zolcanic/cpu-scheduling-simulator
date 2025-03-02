@@ -1,9 +1,11 @@
+// components/AlgorithmResults.js
+
 import React from 'react';
 import ChartDisplay from './ChartDisplay';
 import ProcessTable from './ProcessTable';
 import { generatePDF } from '../utils/pdfGenerator';
 
-const AlgorithmResults = ({ results, processes, running }) => {
+const AlgorithmResults = ({ results, processes, running, currentTime }) => {
     const handleDownloadPDF = () => {
         generatePDF(results, processes);
     };
@@ -17,7 +19,7 @@ const AlgorithmResults = ({ results, processes, running }) => {
                 <div key={algorithm}>
                 <h2>{algorithm.toUpperCase()}</h2>
                 <ProcessTable processes={processes} result={result} />
-                <ChartDisplay result={result} algorithm={algorithm} running={running}/>
+                <ChartDisplay result={result} algorithm={algorithm} running={running} currentTime={currentTime} />
                 </div>
             ))}
             </>
