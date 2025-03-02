@@ -60,7 +60,7 @@ const ProcessTable = ({ processes, result, chartData }) => {
         </tbody>
         </table>
 
-        {/* Example Chart Rendering (Replace with your actual chart implementation) */}
+
         <div style={{ marginTop: '20px' }}>
         {chartData && chartData.map((item) => (
             <div
