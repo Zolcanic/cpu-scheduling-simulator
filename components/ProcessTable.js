@@ -2,15 +2,15 @@ import React from 'react';
 
 const ProcessTable = ({ processes, result }) => {
     return (
-        <table>
+        <table style={{ borderCollapse: 'collapse', width: '100%' }}>
         <thead>
         <tr>
-        <th>Process ID</th>
-        <th>Arrival Time</th>
-        <th>Burst Time</th>
-        <th>Completion Time</th>
-        <th>Turnaround Time</th>
-        <th>Waiting Time</th>
+        <th style={tableHeaderStyle}>Process ID</th>
+        <th style={tableHeaderStyle}>Arrival Time</th>
+        <th style={tableHeaderStyle}>Burst Time</th>
+        <th style={tableHeaderStyle}>Completion Time</th>
+        <th style={tableHeaderStyle}>Turnaround Time</th>
+        <th style={tableHeaderStyle}>Waiting Time</th>
         </tr>
         </thead>
         <tbody>
@@ -18,18 +18,31 @@ const ProcessTable = ({ processes, result }) => {
             const processResult = result.find((item) => item.pid === process.pid);
             return (
                 <tr key={process.pid}>
-                <td>{process.pid}</td>
-                <td>{process.arrivalTime}</td>
-                <td>{process.burstTime}</td>
-                <td>{processResult?.completionTime || '-'}</td>
-                <td>{processResult?.turnaroundTime || '-'}</td>
-                <td>{processResult?.waitingTime || '-'}</td>
+                <td style={tableCellStyle}>{process.pid}</td>
+                <td style={tableCellStyle}>{process.arrivalTime}</td>
+                <td style={tableCellStyle}>{process.burstTime}</td>
+                <td style={tableCellStyle}>{processResult?.completionTime || '-'}</td>
+                <td style={tableCellStyle}>{processResult?.turnaroundTime || '-'}</td>
+                <td style={tableCellStyle}>{processResult?.waitingTime || '-'}</td>
                 </tr>
             );
         })}
         </tbody>
         </table>
     );
+};
+
+const tableHeaderStyle = {
+    border: '1px solid #ddd',
+    padding: '8px',
+    textAlign: 'left',
+    backgroundColor: '#f2f2f2',
+};
+
+const tableCellStyle = {
+    border: '1px solid #ddd',
+    padding: '8px',
+    textAlign: 'left',
 };
 
 export default ProcessTable;
