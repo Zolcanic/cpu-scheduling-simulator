@@ -18,13 +18,12 @@ const AlgorithmResults = ({ results, processes, running, currentTime }) => {
                 <h2>{algorithm.toUpperCase()}</h2>
                 <ProcessTable processes={processes} result={result} />
 
-                {/* 🔥 Fix: Added "processes={processes}" to ensure ChartDisplay gets the data */}
                 <ChartDisplay
                 result={result}
                 algorithm={algorithm}
                 running={running}
                 currentTime={currentTime}
-                processes={processes}  // ✅ Added this line
+                processes={processes}
                 />
                 </div>
             ))}

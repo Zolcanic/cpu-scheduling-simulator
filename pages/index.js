@@ -24,10 +24,10 @@ function useInterval(callback, delay) {
 }
 
 export default function Home() {
-    const [processes, setProcesses] = useState([]); // ✅ Initialized as an empty array
+    const [processes, setProcesses] = useState([]); // Initialized as an empty array
     const [numProcesses, setNumProcesses] = useState(5);
     const [timeQuantum, setTimeQuantum] = useState(2);
-    const [results, setResults] = useState({ fifo: [] }); // ✅ Ensure default value is an empty array
+    const [results, setResults] = useState({ fifo: [] }); // Ensure default value is an empty array
     const [running, setRunning] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
     const generatorRef = useRef(null);
@@ -72,7 +72,6 @@ export default function Home() {
         onRun={handleRunAlgorithms}
         running={running}
         />
-        {/* ✅ Ensured processes is defined before accessing length */}
         {processes.length > 0 && (
             <AlgorithmResults results={results} processes={processes} running={running} currentTime={currentTime} />
         )}
