@@ -1,5 +1,3 @@
-// components/AlgorithmResults.js
-
 import React from 'react';
 import ChartDisplay from './ChartDisplay';
 import ProcessTable from './ProcessTable';
@@ -19,7 +17,15 @@ const AlgorithmResults = ({ results, processes, running, currentTime }) => {
                 <div key={algorithm}>
                 <h2>{algorithm.toUpperCase()}</h2>
                 <ProcessTable processes={processes} result={result} />
-                <ChartDisplay result={result} algorithm={algorithm} running={running} currentTime={currentTime} />
+
+                {/* 🔥 Fix: Added "processes={processes}" to ensure ChartDisplay gets the data */}
+                <ChartDisplay
+                result={result}
+                algorithm={algorithm}
+                running={running}
+                currentTime={currentTime}
+                processes={processes}  // ✅ Added this line
+                />
                 </div>
             ))}
             </>
