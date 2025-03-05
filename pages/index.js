@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import AlgorithmControls from '../components/AlgorithmControls';
 import AlgorithmResults from '../components/AlgorithmResults';
 import { generateProcesses } from '../utils/processGenerator';
-import { fifo } from '../utils/schedulingAlgorithms';
+import { fifo , sjf } from '../utils/schedulingAlgorithms';
 
 // useInterval Hook
 function useInterval(callback, delay) {
@@ -31,6 +31,7 @@ export default function Home() {
     const [running, setRunning] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
     const generatorRef = useRef(null);
+    const [selectedAlgorithm, setSelectedAlgorithm] = useState('fifo');
 
     const handleGenerateProcesses = () => {
         setProcesses(generateProcesses(numProcesses));
@@ -38,7 +39,18 @@ export default function Home() {
 
     const handleRunAlgorithms = () => {
         setRunning(true);
-        generatorRef.current = fifo([...processes]);
+        let generator;
+        switch (selectedAlgorithm) {
+            case 'fifo':
+                generator = fifo([...processes]);
+                break;
+            case 'sjf':
+                generator = sjf([...processes]);
+                break;
+            default:
+                generator = fifo([...processes]);
+        }
+        generatorRef.current = generator;
         handleNextStep();
     };
 
@@ -49,7 +61,7 @@ export default function Home() {
             setCurrentTime(0);
             generatorRef.current = null;
         } else {
-            setResults({ fifo: value.result });
+            setResults({ [selectedAlgorithm]: value.result }); // Use computed property name
             setCurrentTime(value.currentTime);
         }
     };
@@ -63,6 +75,11 @@ export default function Home() {
     return (
         <div>
         <h1>CPU Scheduling Simulator</h1>
+        <select value={selectedAlgorithm} onChange={(e) => setSelectedAlgorithm(e.target.value)}>
+        <option value="fifo">FIFO</option>
+        <option value="sjf">SJF</option>
+
+        </select>
         <AlgorithmControls
         numProcesses={numProcesses}
         setNumProcesses={setNumProcesses}
