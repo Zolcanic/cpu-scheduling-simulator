@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import AlgorithmControls from '../components/AlgorithmControls';
 import AlgorithmResults from '../components/AlgorithmResults';
 import { generateProcesses } from '../utils/processGenerator';
-import { fifo , sjf } from '../utils/schedulingAlgorithms';
+import { fifo , sjf, stcf } from '../utils/schedulingAlgorithms';
 
 // useInterval Hook
 function useInterval(callback, delay) {
@@ -47,6 +47,8 @@ export default function Home() {
             case 'sjf':
                 generator = sjf([...processes]);
                 break;
+            case 'stcf':
+                generator = stcf([processes]);
             default:
                 generator = fifo([...processes]);
         }
@@ -78,8 +80,9 @@ export default function Home() {
         <select value={selectedAlgorithm} onChange={(e) => setSelectedAlgorithm(e.target.value)}>
         <option value="fifo">FIFO</option>
         <option value="sjf">SJF</option>
-
+        <option value="stcf">STCF</option>
         </select>
+
         <AlgorithmControls
         numProcesses={numProcesses}
         setNumProcesses={setNumProcesses}
