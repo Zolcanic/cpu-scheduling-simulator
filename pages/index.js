@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import AlgorithmControls from '../components/AlgorithmControls';
 import AlgorithmResults from '../components/AlgorithmResults';
 import { generateProcesses } from '../utils/processGenerator';
-import { fifo , sjf, stcf, rr, mlfq } from '../utils/schedulingAlgorithms';
+import { fifo, sjf, stcf, rr, mlfq } from '../utils/schedulingAlgorithms';
 
 // useInterval Hook
 function useInterval(callback, delay) {
@@ -24,10 +24,10 @@ function useInterval(callback, delay) {
 }
 
 export default function Home() {
-    const [processes, setProcesses] = useState([]); // Initialized as an empty array
+    const [processes, setProcesses] = useState([]);
     const [numProcesses, setNumProcesses] = useState(5);
     const [timeQuantum, setTimeQuantum] = useState(2);
-    const [results, setResults] = useState({ fifo: [] }); // Ensure default value is an empty array
+    const [results, setResults] = useState({ fifo: [] });
     const [running, setRunning] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
     const generatorRef = useRef(null);
@@ -49,10 +49,13 @@ export default function Home() {
                 break;
             case 'stcf':
                 generator = stcf([...processes]);
+                break;
             case 'rr':
-                generator = rr([...processes]);
+                generator = rr([...processes], timeQuantum);
+                break;
             case 'mlfq':
-                generator = rr([...processes]);
+                generator = mlfq([...processes]);
+                break;
             default:
                 generator = fifo([...processes]);
         }
@@ -67,7 +70,7 @@ export default function Home() {
             setCurrentTime(0);
             generatorRef.current = null;
         } else {
-            setResults({ [selectedAlgorithm]: value.result }); // Use computed property name
+            setResults({ [selectedAlgorithm]: value.result });
             setCurrentTime(value.currentTime);
         }
     };
@@ -76,12 +79,16 @@ export default function Home() {
         if (running) {
             handleNextStep();
         }
-    }, 1000); // Update every 1000ms (1 second)
+    }, 1000);
 
     return (
-        <div>
-        <h1>CPU Scheduling Simulator</h1>
-        <select value={selectedAlgorithm} onChange={(e) => setSelectedAlgorithm(e.target.value)}>
+        <div style={containerStyle}>
+        <h1 style={headerStyle}>CPU Scheduling Simulator</h1>
+        <select
+        value={selectedAlgorithm}
+        onChange={(e) => setSelectedAlgorithm(e.target.value)}
+        style={selectStyle}
+        >
         <option value="fifo">FIFO</option>
         <option value="sjf">SJF</option>
         <option value="stcf">STCF</option>
@@ -98,9 +105,35 @@ export default function Home() {
         onRun={handleRunAlgorithms}
         running={running}
         />
+
         {processes.length > 0 && (
-            <AlgorithmResults results={results} processes={processes} running={running} currentTime={currentTime} />
+            <AlgorithmResults
+            results={results}
+            processes={processes}
+            running={running}
+            currentTime={currentTime}
+            />
         )}
         </div>
     );
 }
+
+const containerStyle = {
+    marginTop: '0px',
+    padding: '0px',
+    overflow: 'hidden',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    boxSizing: 'border-box',
+};
+
+const headerStyle = {
+    margin: '10px 0',
+};
+
+const selectStyle = {
+    padding: '8px',
+    marginBottom: '20px',
+};
