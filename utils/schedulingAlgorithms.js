@@ -270,3 +270,12 @@ export function* mlfq(processes) {
     // Final yield to signal completion
     yield { result: [...result], currentTime: null };
 }
+
+export const calculateAverageWaitingTime = (result) => {
+    if (result.length === 0) {
+        return 0; // Return 0 if there are no results
+    }
+
+    const totalWaitingTime = result.reduce((sum, process) => sum + process.waitingTime, 0);
+    return totalWaitingTime / result.length;
+};

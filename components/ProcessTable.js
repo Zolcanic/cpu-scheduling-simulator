@@ -29,6 +29,21 @@ const ProcessTable = ({ processes, result, chartData }) => {
         return luminance > 0.5 ? 'black' : 'white';
     };
 
+    // ✅ Calculate the Average Waiting Time
+    const calculateAverageWaitingTime = () => {
+        if (!result || result.length === 0) {
+            return 0;
+        }
+
+        const totalWaitingTime = result.reduce((sum, process) => {
+            return sum + (process.waitingTime || 0);
+        }, 0);
+
+        return totalWaitingTime / result.length;
+    };
+
+    const averageWaitingTime = calculateAverageWaitingTime();
+
     return (
         <div>
         <table style={{ borderCollapse: 'collapse', width: '100%' }}>
@@ -47,7 +62,13 @@ const ProcessTable = ({ processes, result, chartData }) => {
             const processResult = result.find((item) => item.pid === process.pid);
             const rowColor = getProcessColor(process.pid);
             return (
-                <tr key={process.pid} style={{ backgroundColor: rowColor, color: getTextColor(rowColor) }}>
+                <tr
+                key={process.pid}
+                style={{
+                    backgroundColor: rowColor,
+                    color: getTextColor(rowColor)
+                }}
+                >
                 <td style={tableCellStyle}>{process.pid}</td>
                 <td style={tableCellStyle}>{process.arrivalTime}</td>
                 <td style={tableCellStyle}>{process.burstTime}</td>
@@ -57,10 +78,38 @@ const ProcessTable = ({ processes, result, chartData }) => {
                 </tr>
             );
         })}
+
+        {/* ✅ Average Waiting Time Row */}
+        {result && result.length > 0 && (
+            <tr
+            style={{
+                backgroundColor: '#f2f2f2',
+                fontWeight: 'bold'
+            }}
+            >
+            <td
+            colSpan="5"
+            style={{
+                ...tableCellStyle,
+                textAlign: 'right'
+            }}
+            >
+            Average Waiting Time
+            </td>
+            <td
+            style={{
+                ...tableCellStyle,
+                textAlign: 'left'
+            }}
+            >
+            {averageWaitingTime.toFixed(2)} units
+            </td>
+            </tr>
+        )}
         </tbody>
         </table>
 
-
+        {/* ✅ Chart Data Block (Gantt-like visualization) */}
         <div style={{ marginTop: '20px' }}>
         {chartData && chartData.map((item) => (
             <div
@@ -71,6 +120,10 @@ const ProcessTable = ({ processes, result, chartData }) => {
                                                height: '30px',
                                                margin: '5px',
                                                display: 'inline-block',
+                                               color: getTextColor(getProcessColor(item.pid)),
+                                               textAlign: 'center',
+                                               lineHeight: '30px',
+                                               borderRadius: '4px'
             }}
             >
             {item.pid}
@@ -81,6 +134,7 @@ const ProcessTable = ({ processes, result, chartData }) => {
     );
 };
 
+// ✅ Table Styles
 const tableHeaderStyle = {
     border: '1px solid #ddd',
     padding: '8px',
