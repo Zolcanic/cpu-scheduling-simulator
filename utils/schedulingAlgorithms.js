@@ -198,4 +198,75 @@ export function* rr(processes, timeQuantum) {
     // Final yield to signal completion
     yield { result: [...result], currentTime: null };
 }
-// ... other scheduling algorithms will be added here ...
+
+export function* mlfq(processes) {
+    const result = [];
+    let currentTime = 0;
+    const queues = [
+        { timeQuantum: 4, processes: [] }, // Queue 1: High priority, time quantum = 4
+        { timeQuantum: 8, processes: [] }, // Queue 2: Medium priority, time quantum = 8
+        { timeQuantum: Infinity, processes: [] }, // Queue 3: Low priority, FCFS
+    ];
+
+    // Sort processes by arrival time
+    const sortedProcesses = [...processes].sort((a, b) => a.arrivalTime - b.arrivalTime);
+
+    let i = 0; // Index for sortedProcesses
+
+    while (i < sortedProcesses.length || queues.some(queue => queue.processes.length > 0)) {
+        // Add processes that have arrived to the highest priority queue
+        while (i < sortedProcesses.length && sortedProcesses[i].arrivalTime <= currentTime) {
+            queues[0].processes.push(sortedProcesses[i]);
+            i++;
+        }
+
+        let currentQueue = 0;
+        while (currentQueue < queues.length) {
+            if (queues[currentQueue].processes.length > 0) {
+                const process = queues[currentQueue].processes.shift(); // Dequeue from current queue
+
+                // Execute the process for the time quantum or its remaining burst time, whichever is smaller
+                const executionTime = Math.min(process.burstTime, queues[currentQueue].timeQuantum);
+                process.burstTime -= executionTime;
+                currentTime += executionTime;
+
+                if (process.burstTime === 0) {
+                    // If the process is complete, calculate metrics
+                    const completionTime = currentTime;
+                    const turnaroundTime = completionTime - process.arrivalTime;
+                    const waitingTime = turnaroundTime - process.burstTime;
+
+                    result.push({
+                        pid: process.pid,
+                        completionTime,
+                        turnaroundTime,
+                        waitingTime,
+                    });
+                } else {
+                    // If the process is not complete, move it to the next lower priority queue
+                    if (currentQueue < queues.length - 1) {
+                        queues[currentQueue + 1].processes.push(process);
+                    } else {
+                        // If already in the lowest priority queue, add it back to the same queue
+                        queues[currentQueue].processes.push(process);
+                    }
+                }
+
+                // Yield intermediate results
+                yield { result: [...result], currentTime };
+                break; // Move to the next process
+            } else {
+                currentQueue++; // Move to the next queue
+            }
+        }
+
+        if (currentQueue === queues.length) {
+            // If no process is ready in any queue, increment currentTime
+            currentTime++;
+            yield { result: [...result], currentTime };
+        }
+    }
+
+    // Final yield to signal completion
+    yield { result: [...result], currentTime: null };
+}
